@@ -36,7 +36,6 @@ for ($i = 0; $i < $request->getNbMots(); $i++) { //pour chaque mot
     array_multisort($tab[$i]['query'], SORT_DESC);
     array_multisort($tab[$i]['entity'], SORT_DESC);
 }
-
 session_destroy();
 echo $twig->render('home.html.twig', ['results' => $tab]);
 

@@ -19,7 +19,6 @@ class Mot
 
     public function __construct($mot, $limite, $incr, $profondeur)
     {
-        usleep(600);
         $this->profondeur = $profondeur;
         $this->mot = $mot;
         $this->limite = $limite;
@@ -37,16 +36,18 @@ class Mot
 
     public function setQueryTab(): self
     {
+        set_time_limit (60);
         if ($this->getIncr() < $this->getProfondeur()) { // si il faut encore incrémenter
             $a = 200;
             $httpcode = 0;
-            $o = 0;
+            $nbessai = 0;
 
             while ($httpcode !== $a) {
 
-                $o++;
+                $nbessai++;
                 usleep(500000);
-                file_put_contents('logs.txt', date("G:i:s \n"), FILE_APPEND);
+
+
 
                 $postRequest = [
                     'content' => $this->getMot(),
@@ -60,6 +61,7 @@ class Mot
                 curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
                 $apiResponse = curl_exec($cURLConnection);
                 $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+                file_put_contents('logs.txt', date("G:i:s"). "essai numéro  ".$nbessai. "pour une requette de query pour le mot : ". $this->getMot() . "\n" . "réponse : $httpcode \n", FILE_APPEND);
                 curl_close($cURLConnection);
             }
             $results = json_decode($apiResponse);
@@ -122,16 +124,16 @@ class Mot
     public
     function setEntityTab(): self
     {
+        set_time_limit (60);
         if ($this->getIncr() < $this->getProfondeur()) { // si il faut encore incrémenter
             $a = 200;
             $httpcode = 0;
-            $o = 0;
+            $nbessai = 0;
 
             while ($httpcode !== $a) {
 
-                $o++;
+                $nbessai++;
                 usleep(500000);
-//                file_put_contents('logs.txt', date("G:i:s \n"), FILE_APPEND);
 
                 $postRequest = [
                     'content' => $this->getMot(),
@@ -145,7 +147,9 @@ class Mot
                 curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
                 $apiResponse = curl_exec($cURLConnection);
                 $httpcode = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+                file_put_contents('logs.txt', date("G:i:s"). "essai numéro  ".$nbessai. "pour une requette d'entity pour le mot ".$this->getMot() . "\n" . "réponse : $httpcode \n", FILE_APPEND);
                 curl_close($cURLConnection);
+
             }
             $results = json_decode($apiResponse);
             foreach ($results as $item => $prediction) {
@@ -161,6 +165,22 @@ class Mot
             return $this;
         }
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getQueryTab(): array
+    {
+        return $this->queryTab;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEntityTab(): array
+    {
+        return $this->entityTab;
     }
 
     public

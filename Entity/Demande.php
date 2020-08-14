@@ -11,6 +11,14 @@ class Demande
 
     private $profondeur;
 
+    /**
+     * @return array
+     */
+    public function getMots(): array
+    {
+        return $this->mots;
+    }
+
     private $mots = [];
 
     private $nbMots;
