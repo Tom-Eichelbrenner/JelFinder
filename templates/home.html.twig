@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="fr">
+<head>
+
+    <script type='text/javascript'>
+        function addFields() {
+            // Number of inputs to create
+            let number = document.getElementById("nbmots").value;
+            // Container <div> where dynamic content will be placed
+            let container = document.getElementById("container");
+            // Clear previous contents of the container
+            while (container.hasChildNodes()) {
+                container.removeChild(container.lastChild);
+            }
+            for (let i = 0; i < number; i++) {
+                // Append a node with a random text
+                container.appendChild(document.createTextNode("Mot n°" + (i + 1)));
+                // Create an <input> element, set its type and name attributes
+                let input = document.createElement("input");
+                input.type = "text";
+                input.name = "mot_" + i;
+                input.className = "form-control col-4"
+                container.appendChild(input);
+                // Append a line break
+                container.appendChild(document.createElement("br"));
+            }
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>JELFINDERZ</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/stylesheet.css">
+</head>
+<body>
+<div class="container-fluid my-5 mx-auto">
+    <h1 class="my-5 text-center">THE JELFINDERZ</h1>
+    <form name="demande" method="post" class="form-group" action="request.php">
+        <div id="demande">
+            <div class="form-group">
+                <input type="number" id="nbmots" name="nbmots" class="form-control" placeholder="Nombre de mots"
+                       required="required">
+                <small class="form-text text-muted">+ y'en a, + c'est long :p</small>
+            </div>
+            <div style="margin: 0 0 15px" class="form-group">
+                <a href="#" id="filldetails" onclick="addFields()">C'est parti !</a>
+                <div id="container" class="form-group"/>
+
+            </div>
+        </div>
+        <div class="form-group d-none">
+            <select id="demande_langue" name="langue" class="custom-select">
+                <option value="">Langue de la recherche</option>
+                <option value="fr" selected>Francais</option>
+                <option value="en">Anglais</option>
+            </select>
+            <small class="form-text text-muted">La langue de ta recherche</small>
+
+        </div>
+        <div class="form-group">
+            <input type="number" id="demande_limite" name="limite" class="form-control" value="10"
+                   placeholder="Nombre de résultats ( max : 30 ) ">
+            <small class="form-text text-muted">La limite des résultats de chaque itération</small>
+
+        </div>
+        <div class="form-group">
+            <input type="number" id="profondeur" name="profondeur" class="form-control" value="0"
+                   placeholder="La profondeur de la recherche">
+            <small class="form-text text-muted">La profondeur des itérations</small>
+
+        </div>
+
+        <div class="row mx-auto">
+            <button type="submit" class="submit btn btn-dark mx-auto" name="submit">RECHERCHER</button>
+
+        </div>
+    </form>
+</div>
+
+{% if results is defined %}
+<div class="container-fluid">
+    <button class="btn btn-dark" id="btnExportAll" style="margin-left: 15px; position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1020;">TOUT EXPORTER
+    </button>
+    <div class="container-fluid">
+        {% for answer in results %}
+            <h1 class="d-none filename">{{ answer.mot }}_{{ "now"|date("m-d-Y") }}.csv</h1>
+            <h1 style="    text-align: center;
+    text-transform: uppercase;">{{ answer.mot }}</h1>
+            <button class="btn btn-dark btnExportToCsv{{ loop.index }} btnExportToCsv" id="btnExportToCsv"
+                    style=" position: -webkit-sticky;position: sticky;top: calc(1rem + 1.3rem);z-index: 1020;">
+                Exporter
+                en CSV
+            </button>
+            <table class="table dataTable{{ loop.index }} dataTable" id="dataTable">
+                <thead class="thead-dark click2shrink">
+                <tr>
+                    <th scope="col"><p class="d-none">{{ answer.mot }}</p></th>
+                    <th scope="col">Entités</th>
+                    <th scope="col">Occurence</th>
+                    <th scope="col">Pourcentage</th>
+                </tr>
+                </thead>
+                <tbody class="shrinkable" style="display: none">
+                {% set total = 0 %}
+                {% for key, query in answer['entity'] %}
+                    {% set total = total + query %}
+                {% endfor %}
+                {% for key, query in answer['entity'] %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ key }}</td>
+                    <td><strong>{{ query }}/{{ total }}</strong></td>
+                    <td><small>{{ (100 * query / total)|number_format(2, '.', ',') }} %</small></td>
+                    {% endfor %}
+                </tr>
+                </tbody>
+                <thead class="thead-dark click2shrink">
+                <tr>
+                    <th scope="col"><p class="d-none">{{ answer.mot }}</p></th>
+                    <th scope="col">Communs</th>
+                    <th scope="col">Occurence</th>
+                    <th scope="col">Pourcentage</th>
+                </tr>
+                </thead>
+                <tbody class="shrinkable" style="display: none">
+                {% set total = 0 %}
+                {% for key, query in answer['query'] %}
+                    {% set total = total + query %}
+                {% endfor %}
+                {% for key, query in answer['query'] %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ key }}</td>
+                        <td><strong>{{ query }}/{{ total }}</strong></td>
+                        <td><small>{{ (100 * query / total)|number_format(2, '.', ',') }} %</small></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
+
+
+        <h1 class="d-none"
+            id="fullfilename">{% for answer in results %}{{ answer['mot'] }}_{% endfor %}{{ "now"|date("m-d-Y") }}
+                .csv</h1>
+        <table class=" d-none table border border-dark fulltable" id="fulltable">
+            {% for answer in results %}
+                <thead class="thead-dark click2shrink">
+                <tr>
+                    <th scope="col"><p class="d-none">{{ answer.mot }}</p></th>
+                    <th scope="col">Entités</th>
+                    <th scope="col">Occurence</th>
+                    <th scope="col">Pourcentage</th>
+                </tr>
+                </thead>
+                <tbody class="shrinkable" style="display: none">
+                {% set total = 0 %}
+                {% for key, query in answer['entity'] %}
+                    {% set total = total + query %}
+                {% endfor %}
+                {% for key, query in answer['entity'] %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ key }}</td>
+                    <td><strong>{{ query }}/{{ total }}</strong></td>
+                    <td><small>{{ (100 * query / total)|number_format(2, '.', ',') }} %</small></td>
+                    {% endfor %}
+                </tr>
+                </tbody>
+                <thead class="thead-dark click2shrink">
+                <tr>
+                    <th scope="col"><p class="d-none">{{ answer.mot }}</p></th>
+                    <th scope="col">Query</th>
+                    <th scope="col">Occurence</th>
+                    <th scope="col">Pourcentage</th>
+                </tr>
+                </thead>
+                <tbody class="shrinkable" style="display: none">
+                {% set total = 0 %}
+                {% for key, query in answer['query'] %}
+                    {% set total = total + query %}
+                {% endfor %}
+                {% for key, query in answer['query'] %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ key }}</td>
+                        <td><strong>{{ query }}/{{ total }}</strong></td>
+                        <td><small>{{ (100 * query / total)|number_format(2, '.', ',') }} %</small></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            {% endfor %}
+        </table>
+
+        {% endif %}
+    </div>
+</div>
+
+<script src="assets/js/TableCsvExporter.js"></script>
+<script>
+    const dataTable = document.getElementsByClassName("dataTable")
+    const btnExportToCsv = document.getElementsByClassName('btnExportToCsv')
+    const btnExportAll = document.getElementById('btnExportAll')
+    const fulltable = document.getElementById('fulltable')
+    const shrinkable = document.getElementsByClassName('shrinkable')
+    const click2shrink = document.getElementsByClassName('click2shrink')
+    console.log(dataTable)
+    console.log(btnExportToCsv)
+    console.log(btnExportAll)
+    console.log(fulltable)
+    console.log(shrinkable)
+    console.log(click2shrink)
+
+    for (let i = 0; i < click2shrink.length; i++) {
+        click2shrink[i].addEventListener("click", () => {
+            if (shrinkable[i].style.display === 'none') {
+                shrinkable[i].style.opacity = '0'
+
+                shrinkable[i].style.display = ''
+                setTimeout(shrinkable[i].style.opacity = '1', 3000)
+
+            } else {
+                setTimeout(shrinkable[i].style.opacity = '0', 3000)
+                shrinkable[i].style.display = 'none'
+
+            }
+        })
+    }
+
+    for (let i = 0; i < dataTable.length; i++) {
+        btnExportToCsv[i].addEventListener("click", () => {
+            const exporter = new TableCsvExporter(dataTable[i]);
+            const csvOutput = exporter.convertToCsv()
+            const csvBlob = new Blob([csvOutput], {type: "text/csv"})
+            const blobUrl = URL.createObjectURL(csvBlob)
+            const anchorElement = document.createElement("a")
+            const filename = document.getElementsByClassName('filename')[i].textContent
+
+            anchorElement.href = blobUrl
+            anchorElement.download = filename
+            anchorElement.click()
+
+            setTimeout(() => {
+                URL.revokeObjectURL(blobUrl)
+            }, 500)
+        })
+    }
+    btnExportAll.addEventListener("click", () => {
+        const exporter = new TableCsvExporter(fulltable);
+        const csvOutput = exporter.convertToCsv()
+        const csvBlob = new Blob([csvOutput], {type: "text/csv"})
+        const blobUrl = URL.createObjectURL(csvBlob)
+        const anchorElement = document.createElement("a")
+        const filename = document.getElementById('fullfilename').textContent
+
+        anchorElement.href = blobUrl
+        anchorElement.download = filename
+        anchorElement.click()
+
+        setTimeout(() => {
+            URL.revokeObjectURL(blobUrl)
+        }, 500)
+    })
+
+</script>
+</body>
+</html>

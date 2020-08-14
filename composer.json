@@ -1,0 +1,14 @@
+{
+    "name": "tomeichelbrenner/oui",
+    "require": {
+        "twig/twig": "^3.0",
+      "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "authors": [
+        {
+            "name": "Tom Eichelbrenner",
+            "email": "tom.eichelbrenner01@gmail.com"
+        }
+    ]
+}
