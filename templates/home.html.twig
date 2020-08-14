@@ -25,7 +25,7 @@
                 container.appendChild(document.createElement("br"));
             }
         }
-    </script>
+    </script> {#Ajouter dynamiquement des champs 'mot' en fonction du nombre spécifié#}
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -36,6 +36,8 @@
     <link rel="stylesheet" href="assets/css/stylesheet.css">
 </head>
 <body>
+
+
 <div class="container-fluid my-5 mx-auto">
     <h1 class="my-5 text-center">THE JELFINDERZ</h1>
     <form name="demande" method="post" class="form-group" action="request.php">
@@ -48,7 +50,6 @@
             <div style="margin: 0 0 15px" class="form-group">
                 <a href="#" id="filldetails" onclick="addFields()">C'est parti !</a>
                 <div id="container" class="form-group"/>
-
             </div>
         </div>
         <div class="form-group d-none">
@@ -85,8 +86,7 @@
     <button class="btn btn-dark" id="btnExportAll" style="margin-left: 15px; position: -webkit-sticky;
     position: sticky;
     top: 0;
-    z-index: 1020;">TOUT EXPORTER
-    </button>
+    z-index: 1020;">TOUT EXPORTER</button>
     <div class="container-fluid">
         {% for answer in results %}
             <h1 class="d-none filename">{{ answer.mot }}_{{ "now"|date("m-d-Y") }}.csv</h1>
@@ -114,7 +114,7 @@
                 {% for key, query in answer['entity'] %}
                 <tr>
                     <th scope="row">{{ loop.index }}</th>
-                    <td>{{ key }}</td>
+                    <td><a href="https://www.google.fr/search?q=chat{{ key }}">{{key}}</a></td>
                     <td><strong>{{ query }}/{{ total }}</strong></td>
                     <td><small>{{ (100 * query / total)|number_format(2, '.', ',') }} %</small></td>
                     {% endfor %}
@@ -136,7 +136,7 @@
                 {% for key, query in answer['query'] %}
                     <tr>
                         <td>{{ loop.index }}</td>
-                        <td>{{ key }}</td>
+                        <td><a href="https://fr.lmgtfy.com/?q={{ key }}&pp=1">{{key}}</a></td>
                         <td><strong>{{ query }}/{{ total }}</strong></td>
                         <td><small>{{ (100 * query / total)|number_format(2, '.', ',') }} %</small></td>
                     </tr>
@@ -145,10 +145,9 @@
             </table>
         {% endfor %}
 
-
         <h1 class="d-none"
             id="fullfilename">{% for answer in results %}{{ answer['mot'] }}_{% endfor %}{{ "now"|date("m-d-Y") }}
-                .csv</h1>
+            .csv</h1>
         <table class=" d-none table border border-dark fulltable" id="fulltable">
             {% for answer in results %}
                 <thead class="thead-dark click2shrink">
@@ -197,7 +196,6 @@
                 </tbody>
             {% endfor %}
         </table>
-
         {% endif %}
     </div>
 </div>
